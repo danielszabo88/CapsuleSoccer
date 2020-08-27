@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {background-color: white;}  
+        #switchArea {display: none;}
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <div id="userName">
+        <p>Enter your name and press GO</p>
+        <input type="text" id="name" name="name" maxlength="10"><br>
+        <button id="sendName">GO</button>
+    </div>
+
+    <div id="switchArea">
+        <p id="userInfo"></p>
+        <div id="displayName"></div>
+        <button id="switchButton">Switch</button>
+    </div>
+ 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
