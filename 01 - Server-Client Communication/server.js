@@ -1,31 +1,30 @@
-//Importing the express module
 const express = require('express')
 const app = express()
-const server = app.listen(5500);
-//Importing the socket.io module
-const io = require('socket.io')(server);
-
+const port = 3000
+const server = app.listen(port)
+const io = require('socket.io')(server)
 
 //Hello World line taken from the express website
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
 
 //The 'connection' is a reserved event name in socket.io
 //For whenever a connection is established between the server and a client
-io.on('connection', connected);
+io.on('connection', (socket) => {
 
-//Defining the connected function that runs upon the 'connection' event
-function connected(socket){
 	//Displaying a message on the terminal
-    console.log("A new client is connected");
+    console.log('a user connected');
     //Sending a message to the client
-    socket.emit('ServerClientHello', "Server says hello to client");
+    socket.emit('serverToClient', "Hello, client!");
     //Receiving a message from the client and putting it on the terminal
-    socket.on('ClientServerHello', data => {
+    socket.on('clientToServer', data => {
         console.log(data);
     })
-    //When the client sends a message via the 'ClientClientHello' event
+    //When the client sends a message via the 'clientToClient' event
     //The server forwards it to all the other clients that are connected
-    socket.on('ClientClientHello', data => {
-        socket.broadcast.emit('ServerClientHello', data);
+    socket.on('clientToClient', data => {
+        socket.broadcast.emit('serverToClient', data);
     })
-}
+    
+});
