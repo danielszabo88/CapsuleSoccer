@@ -810,11 +810,15 @@ function physicsLoop(timestamp) {
     });
 }
 
+//If anything else (text, data...) needs to be rendered on the canvas
+function userInterface(){};
+
 function renderLoop(){
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
     BODIES.forEach((b) => {
         b.render();
     })
+    userInterface();
 }
 
 function mainLoop(){
@@ -828,59 +832,4 @@ function mainLoop(){
 function renderOnly(){
     renderLoop();
     requestAnimationFrame(renderOnly);
-}
-
-//************************* END OF PHYSICS ENGINE ***/
-
-const express = require('express')
-const app = express()
-const io = require('socket.io')(5500)
-
-app.get('/', (req, res) => res.send('Hello World!'))
-
-let playerPos = {};
-let serverBalls = {};
-putWallsAround(0, 0, 640, 480);
-
-io.on('connection', connected);
-setInterval(serverLoop, 1000/60);
-
-function connected(socket){
-    socket.on('newPlayer', data => {
-        console.log("New client connected, with id: "+socket.id);
-        serverBalls[socket.id] = new Capsule(data.x, data.y, data.x+40, data.y, 40, 5);
-        serverBalls[socket.id].maxSpeed = 5;
-        playerPos[socket.id] = data;
-        console.log("Starting position: "+playerPos[socket.id].x+" - "+playerPos[socket.id].y);
-        console.log("Current number of players: "+Object.keys(playerPos).length);
-        console.log("players dictionary: ", playerPos);
-        io.emit('updatePlayers', playerPos);
-    })
-    socket.on('disconnect', function(){
-        serverBalls[socket.id].remove();
-        delete serverBalls[socket.id];
-        delete playerPos[socket.id];
-        console.log("Goodbye client with id "+socket.id);
-        console.log("Current number of players: "+Object.keys(playerPos).length);
-        io.emit('updatePlayers', playerPos);
-    })
-    socket.on('userCommands', data => {
-        serverBalls[socket.id].left = data.left;
-        serverBalls[socket.id].up = data.up;
-        serverBalls[socket.id].right = data.right;
-        serverBalls[socket.id].down = data.down;
-        serverBalls[socket.id].action = data.action;
-    })
-}
-
-function serverLoop(){
-    userInteraction();
-    physicsLoop();
-    for (let id in serverBalls){
-        playerPos[id].x = serverBalls[id].pos.x;
-        playerPos[id].y = serverBalls[id].pos.y;
-        playerPos[id].angle = serverBalls[id].angle;
-    }
-    //console.log(playerPos);
-    io.emit('positionUpdate', playerPos);
 }
