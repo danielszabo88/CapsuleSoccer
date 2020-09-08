@@ -810,11 +810,15 @@ function physicsLoop(timestamp) {
     });
 }
 
+//If anything else (text, data...) needs to be rendered on the canvas
+function userInterface(){};
+
 function renderLoop(){
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
     BODIES.forEach((b) => {
         b.render();
     })
+    userInterface();
 }
 
 function mainLoop(){
@@ -828,165 +832,4 @@ function mainLoop(){
 function renderOnly(){
     renderLoop();
     requestAnimationFrame(renderOnly);
-}
-
-//************************* END OF PHYSICS ENGINE ***/
-
-const express = require('express')
-const app = express()
-const io = require('socket.io')(5500)
-
-app.get('/', (req, res) => res.send('Hello World!'))
-
-buildStadium();
-let playerPos = {};
-let serverBalls = {};
-let football;
-let footballPos = {};
-
-io.on('connection', connected);
-setInterval(serverLoop, 1000/60);
-
-function connected(socket){
-    console.log("New client connected, with id: "+socket.id);
-    if (Object.keys(playerPos).length === 0){
-        console.log("first player joined");
-        //creating player 1
-        serverBalls[socket.id] = new Capsule(80, 270, 150, 270, 25, 10);
-        serverBalls[socket.id].maxSpeed = 4;
-        serverBalls[socket.id].score = 0;
-        serverBalls[socket.id].no = 1;
-        playerPos[socket.id] = {x: 115, y: 270, no: 1};
-    }
-    else if (Object.keys(playerPos).length === 1){
-        console.log("second player joined");
-        //creating player 2
-        serverBalls[socket.id] = new Capsule(560, 270, 490, 270, 25, 10);
-        serverBalls[socket.id].maxSpeed = 4;
-        serverBalls[socket.id].score = 0;
-        serverBalls[socket.id].no = 2;
-        playerPos[socket.id] = {x: 525, y: 270, no: 2};
-        football = new Ball(320, 270, 20, 6);
-        io.emit('updateFootball', {x: football.pos.x, y: football.pos.y});
-    }
-    else if (Object.keys(playerPos).length > 1){
-        console.log("too many players, bye");
-        return false;
-    }
-    io.emit('updateConnections', playerPos);
-    socket.on('disconnect', function(){
-        serverBalls[socket.id].remove();
-        delete serverBalls[socket.id];
-        delete playerPos[socket.id];
-        console.log("Goodbye client with id "+socket.id);
-        console.log("Current number of players: "+Object.keys(playerPos).length);
-        io.emit('updateConnections', playerPos);
-    })
-    socket.on('userCommands', data => {
-        serverBalls[socket.id].left = data.left;
-        serverBalls[socket.id].up = data.up;
-        serverBalls[socket.id].right = data.right;
-        serverBalls[socket.id].down = data.down;
-        serverBalls[socket.id].action = data.action;
-        console.log("command");
-    })
-}
-
-function serverLoop(){
-    userInteraction();
-    physicsLoop();
-    for (let id in serverBalls){
-        playerPos[id].x = serverBalls[id].pos.x;
-        playerPos[id].y = serverBalls[id].pos.y;
-        playerPos[id].angle = serverBalls[id].angle;
-    }
-    if (football === undefined){
-        //console.log("waiting for 2 players...");
-    } else {
-        gameLogic();
-        footballPos = {x: football.pos.x, y: football.pos.y};
-    }
-    console.log("emit");
-    io.emit('positionUpdate', playerPos);
-    io.emit('updateFootball', footballPos);
-}
-
-function gameLogic(){
-    if(football.pos.x < 45 || football.pos.x > 595){
-        scoring();
-    }
-    for(let id in serverBalls){
-        if(serverBalls[id].score === 3){
-            gameOver();
-        }
-    }
-}
-
-function gameOver(){
-    console.log("Game Over");
-    gameSetup();
-    io.emit('updateScore', null);
-    setTimeout(() => {
-        for(let id in serverBalls){
-            serverBalls[id].score = 0;
-        }
-    }, 2000);
-}
-
-function scoring(){
-    let scorerId;
-    if(football.pos.x < 45){
-        for(let id in serverBalls){
-            if (serverBalls[id].no === 2){
-                serverBalls[id].score++;
-                scorerId = id;
-                console.log("score for player 2!");
-            }
-        }
-    }
-    if(football.pos.x > 595){
-        for(let id in serverBalls){
-            if (serverBalls[id].no === 1){
-                serverBalls[id].score++;
-                scorerId = id;
-                console.log("score for player 1!");
-            }
-        }
-    }
-    gameSetup();
-    io.emit('updateScore', scorerId);
-}
-
-function gameSetup(){
-    for(let id in serverBalls){
-        if (serverBalls[id].no === 1){
-            serverBalls[id].vel.set(0, 0);
-            serverBalls[id].angVel = 0;
-            serverBalls[id].setPosition(115, 270, 0);
-        }
-        if (serverBalls[id].no === 2){
-            serverBalls[id].vel.set(0, 0);
-            serverBalls[id].angVel = 0;
-            serverBalls[id].setPosition(525, 270, 0);
-        }
-    }
-    football.pos.set(320, 270);
-    football.vel.set(0, 0);
-}
-
-function buildStadium(){
-    new Wall(60, 80, 580, 80);
-    new Wall(60, 460, 580, 460);
-
-    new Wall(60, 80, 60, 180);
-    new Wall(60, 460, 60, 360);
-    new Wall(580, 80, 580, 180);
-    new Wall(580, 460, 580, 360);
-
-    new Wall(50, 360, 10, 360);
-    new Wall(0, 360, 0, 180);
-    new Wall(10, 180, 50, 180);
-    new Wall(590, 360, 630, 360);
-    new Wall(640, 360, 640, 180);
-    new Wall(630, 180, 590, 180);
 }
