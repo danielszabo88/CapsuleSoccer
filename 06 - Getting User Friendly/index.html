@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #canvas{
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+            background: #fffacc;
+        }
+        #gameArea {
+            display: none;
+        }
+        #winning {
+            color: red;
+            text-align: center;
+        }
+        button {
+            background:linear-gradient(to bottom, #fe1a00 5%, #ce0100 100%);
+            background-color:#fe1a00;
+            border-radius:28px;
+            border:1px solid #d83526;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Arial;
+            font-size:17px;
+            padding:17px 31px;
+            text-decoration:none;
+            text-shadow:0px 1px 0px #b23e35;
+        }
+        button:hover {
+            background:linear-gradient(to bottom, #ce0100 5%, #fe1a00 100%);
+            background-color:#ce0100;
+        }
+        button:active {
+            position:relative;
+            top:1px;
+        }
+        #howto {
+            border: 1px solid black;
+            border-radius: 5px;
+            width: 40%;
+            font-family: Verdana;
+            margin: auto;
+        }
+        #userName {
+            border-radius: 10px;
+            height: 150%;
+        }
+        #userForm {
+            text-align: center;
+        }
+        #playerWelcome {
+            font-family: Verdana;
+            font-weight: bold;
+        }
+    </style>
+    <title>Getting User Friendly</title>
+</head>
+<body>
+    <div id="userForm">
+            <form action="">
+                <img src="cs_logo.jpg">
+                <p id="playerWelcome"></p>
+                <input id="userName" required maxlength="12" autocomplete="off" />
+                <br><br>
+                <button type="submit">GO</button>
+            </form>
+            <br>
+            <hr>
+
+            <div id="howto">
+                <p>Physics Engine Tutorial
+                <a href="https://google.com"><img src="youtube.png" alt="HTML tutorial" style="width:28px;height:28px;"></a>
+                <a href="https://google.com"><img src="github.png" alt="HTML tutorial" style="width:28px;height:28px;"></a>
+                </p>
+                <p>Multiplayer Game Tutorial 
+                    <a href="https://google.com"><img src="youtube.png" alt="HTML tutorial" style="width:28px;height:28px;"></a>
+                    <a href="https://google.com"><img src="github.png" alt="HTML tutorial" style="width:28px;height:28px;"></a>
+                </p>
+            </div>
+            <br>
+
+            <div id="fb-root"></div>
+            <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v8.0" nonce="pXtLrWi1"></script>    
+            <div class="fb-share-button" data-href="https://google.com" data-layout="box_count" data-size="large">
+                <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">
+                    Share
+                </a>
+            </div>
+    </div>
+
+    <div id="gameArea">
+        <canvas id="canvas" tabindex=0 width="640" height=480></canvas>
+        <br>
+        <h1 id="winning"></h1>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="mocorgo.js"></script>
+    <script src="userInput.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
